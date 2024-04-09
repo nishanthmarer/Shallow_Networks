@@ -25,9 +25,9 @@ Epoch = 10
 Learning_Rate = 1e-2
 Weight_Deacy = 1e-5
 Patience = 8
-DataStoreLocCIFAR = "DataStore\\CIFAR10"
+DataStoreLocCIFAR = "DataStore/CIFAR10"
 CIFAR10_Image_Size = 32
-ModelLocCIFAR = "model\\CIFAR10.pth" 
+ModelLocCIFAR = "model/CIFAR10.pth" 
 CIFAR_Classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
 def to_device(data, device):
@@ -266,9 +266,9 @@ if __name__ =="__main__":
         LossFunction = NN.CrossEntropyLoss()
         
         """Create the model folder is not exist"""
-        os.makedirs(CodePath+"\\model", exist_ok=True)
+        os.makedirs(CodePath+"/model", exist_ok=True)
         
-        ModelPath = os.path.join(CodePath, "model\\"+DataSetType+".pth")
+        ModelPath = os.path.join(CodePath, "model/"+DataSetType+".pth")
         TrainAndValidateModel(cnn, ModelPath, trainingDataLoader, validationDataLoader, testingDataLoader, Optimizer, LossFunction, scheduler, device, Patience)
         exit(0)
         cnn.load_state_dict(TH.load(ModelPath))

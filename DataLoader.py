@@ -18,8 +18,7 @@ from torch.utils.data import random_split
 """Set the debug = 1 to print messages in the code else set to 0 to stop printing output"""
 debug = 1
 #Global Settings
-DataStoreLocCIFAR = "DataStore\CIFAR10"
-ModelLocCIFAR = "model\CIFAR10.pth"
+DataStoreLocCIFAR = "DataStore\\CIFAR10"
 CIFAR10_Image_Size = 32
 
 CIFAR_Classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
