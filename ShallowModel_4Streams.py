@@ -19,9 +19,7 @@ Conv1OutputChannel = 32
 Conv2OutputChannel = 64
 Conv3OutputChannel = 128
 Conv4OutputChannel = 256
-ValidationSize = 0.25
 
-x = torch.zeros((8,8,64))
 
 """###################################################################################"""   
 """This function creates the Neural Network structure for the CIFAR10 dataset"""
@@ -52,6 +50,8 @@ class CIFARNet(NN.Module):
         self.MaxPoolConv1_Main = NN.MaxPool2d((2,2), stride = 2)
         self.DropOut1_Main = NN.Dropout2d(p=0.2)
         
+        ###########################################################################################################################
+        #Stream 1 Blocks
         #Output at this point is 16x16x32 -> Stream 1
         self.Conv1_S1_1 = NN.Conv2d(in_channels = Conv1OutputChannel, 
                                 out_channels = Conv1OutputChannel, 
@@ -89,6 +89,8 @@ class CIFARNet(NN.Module):
         self.DropOut1_S1 = NN.Dropout2d(p=0.2)
         
         #Output at this point is 8x8x64 -> Stream 1
+        #Stream 1 ends
+        
         ###############################################################################################################################################
         #Stream 2 start point from main of size 16x16x32
         self.Conv1_Main_2 = NN.Conv2d(in_channels = Conv1OutputChannel, 
@@ -111,6 +113,8 @@ class CIFARNet(NN.Module):
         self.DropOut1_Main_2 = NN.Dropout2d(p=0.2)
         
         #Output at this point is 8x8x64
+        ###############################################################################################################################################
+        #Stream 2 Starts here
         #Start of Stream 2
         self.Conv1_S2_1 = NN.Conv2d(in_channels = Conv2OutputChannel, 
                                 out_channels = Conv2OutputChannel, 
@@ -145,9 +149,13 @@ class CIFARNet(NN.Module):
         self.reluConv2_S2_2 = NN.ReLU()
         
         #Stream 1 + Stream2 = 8x8x64 + 8x8x64 = 8x8x128
-        #self.fusion1 = torch.cat((x,x),2)
-        self.fusion_Maxpool = NN.MaxPool2d((2,2), stride = 2)
-        #Output at this point is 8x8x64 -> Stream 2 (Combine Stream 1 + Stream 2 = 8x8x64 + 8x8x64 = 8x8x128 and do maxpool so that it becomes 4x4x128)
+        
+        #Fuse them together to get 8x8x128
+        #Output at this point is 8x8x64 -> Stream 2 (Combine Stream 1 + Stream 2 = 8x8x64 + 8x8x64 = 8x8x128 
+        #Now we need to do max pooling so that it can combine with next stream
+        self.fusion_Maxpool_1_2 = NN.MaxPool2d((2,2), stride = 2)
+        #maxpool so that it becomes 4x4x128
+        
         ###############################################################################################################################################
         #Stream 3 start point from main of size 8x8x64
         
@@ -171,6 +179,7 @@ class CIFARNet(NN.Module):
         self.DropOut1_Main_3 = NN.Dropout2d(p=0.2)
         
         #Output at this point is 4x4x128
+        ###############################################################################################################################################
         #Start of Stream 3
         self.Conv1_S3_1 = NN.Conv2d(in_channels = Conv3OutputChannel, 
                                 out_channels = Conv3OutputChannel, 
@@ -205,29 +214,97 @@ class CIFARNet(NN.Module):
         self.reluConv2_S3_2 = NN.ReLU()
         
         #Output at this point is 4x4x128 -> Stream 3
+        ###############################################################################################################################################
+        
         #Combine this with stream 1 + stream 2 output i.e., 4x4x128 -> stream 3 + (stream 1 + stream 2) = 4x4x128 + 4x4x128 = 4x4x256
         
-        #@Todo implement two fusion blocks, 
         #one block combines stream 1 and stream 2 
         #second block combines stream 3 and output of fusion block 1.
-        #this is then given to the max pool for making it 2x2x256
-        self.MaxPoolConv4 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut4 = NN.Dropout2d(p=0.2)
+        self.fusion_Maxpool_3_12 = NN.MaxPool2d((2,2), stride = 2)
+        
+        #Now output at this point will be 2x2x256
+        
+        ###############################################################################################################################################
+        #Stream 4 start point from main of size 4x4x128
+        
+        self.Conv1_Main_4 = NN.Conv2d(in_channels = Conv3OutputChannel, 
+                                out_channels = Conv4OutputChannel, 
+                                kernel_size = Conv2Filter_Size, 
+                                stride = Conv1Stride,
+                                padding = 1)
+        self.BatchNorm1_Main_4 = NN.BatchNorm2d(Conv4OutputChannel)
+        self.reluConv1_Main_4 = NN.ReLU()
+        
+        self.Conv2_Main_4 = NN.Conv2d(in_channels = Conv4OutputChannel, 
+                                out_channels = Conv4OutputChannel, 
+                                kernel_size = Conv2Filter_Size, 
+                                stride = Conv2Stride,
+                                padding = 1)
+        self.BatchNorm2_Main_4 = NN.BatchNorm2d(Conv4OutputChannel)
+        self.reluConv2_Main_4 = NN.ReLU()
+        
+        self.MaxPoolConv1_Main_4 = NN.MaxPool2d((2,2), stride = 2)
+        self.DropOut1_Main_4 = NN.Dropout2d(p=0.2)
+        
+        #Output at this point is 2x2x256
+        ###############################################################################################################################################
+        #Start of Stream 4
+        self.Conv1_S4_1 = NN.Conv2d(in_channels = Conv4OutputChannel, 
+                                out_channels = Conv4OutputChannel, 
+                                kernel_size = Conv2Filter_Size, 
+                                stride = Conv1Stride,
+                                padding = 1)
+        self.BatchNorm1_S4_1 = NN.BatchNorm2d(Conv4OutputChannel)
+        self.reluConv1_S4_1 = NN.ReLU()
+        
+        self.Conv2_S4_1 = NN.Conv2d(in_channels = Conv4OutputChannel, 
+                                out_channels = Conv4OutputChannel, 
+                                kernel_size = Conv2Filter_Size, 
+                                stride = Conv2Stride,
+                                padding = 1)
+        self.BatchNorm2_S4_1 = NN.BatchNorm2d(Conv4OutputChannel)
+        self.reluConv2_S4_1 = NN.ReLU()
+        
+        self.Conv1_S4_2 = NN.Conv2d(in_channels = Conv4OutputChannel, 
+                                out_channels = Conv4OutputChannel, 
+                                kernel_size = Conv2Filter_Size, 
+                                stride = Conv1Stride,
+                                padding = 1)
+        self.BatchNorm1_S4_2 = NN.BatchNorm2d(Conv4OutputChannel)
+        self.reluConv1_S4_2 = NN.ReLU()
+        
+        self.Conv2_S4_2 = NN.Conv2d(in_channels = Conv4OutputChannel, 
+                                out_channels = Conv4OutputChannel, 
+                                kernel_size = Conv2Filter_Size, 
+                                stride = Conv2Stride,
+                                padding = 1)
+        self.BatchNorm2_S4_2 = NN.BatchNorm2d(Conv4OutputChannel)
+        self.reluConv2_S4_2 = NN.ReLU()
+        
+        #Output at this point is 2x2x256
+        #Now have a fusion block here, which combines the output of Stream 4 + (Stream 3 + (Stream 1 + Stream 2))
+        # i.e., 2x2x256 + maxpool(4x4x128 + 4x4x128) = 2x2x512
+        #just do fusion here and give it to the fully connected layer which will be 2x2x512 = 2048 inputs
         
         ##########################################################################################
-        #Output size at this point is 2x2x256
-        self.FullyConn1 = NN.Linear(in_features = 1024, out_features=512)
-        self.BatchNorm9 = NN.BatchNorm1d(512)
+        #Output size at this point is 2x2x512
+        self.FullyConn1 = NN.Linear(in_features = 2048, out_features=1024)
+        self.BatchNorm9 = NN.BatchNorm1d(1024)
         self.reluFC1 = NN.ReLU()
         self.DropOut5 = NN.Dropout1d(p=0.2)
         
-        self.FullyConn2 = NN.Linear(in_features = 512, out_features=256)
-        self.BatchNorm10 = NN.BatchNorm1d(256)
+        self.FullyConn2 = NN.Linear(in_features = 1024, out_features=512)
+        self.BatchNorm10 = NN.BatchNorm1d(512)
         self.reluFC2 = NN.ReLU()
         self.DropOut6 = NN.Dropout1d(p=0.2)
         
+        self.FullyConn3 = NN.Linear(in_features = 512, out_features=256)
+        self.BatchNorm11 = NN.BatchNorm1d(256)
+        self.reluFC3 = NN.ReLU()
+        self.DropOut7 = NN.Dropout1d(p=0.2)
+        
         #Final Layer
-        self.FullyConn3 = NN.Linear(in_features = 256, out_features = classes)
+        self.FullyConn4 = NN.Linear(in_features = 256, out_features = classes)
         self.SoftMax = NN.LogSoftmax(dim=1)
         
         
@@ -299,7 +376,7 @@ class CIFARNet(NN.Module):
         #here we need a fusion block to combine the input1 + input2 to make 8x8x128
         
         input3 = torch.cat((input1,input2),dim=1) #fusion block one1
-        input3 = self.fusion_Maxpool(input3)
+        input3 = self.fusion_Maxpool_1_2(input3)
         #Also we need a maxpool so that we make it align with the steam 3 output of 4x4x128
         
         #Third block of the main to convert from 8x8x64 -> 4x4x128
@@ -315,30 +392,61 @@ class CIFARNet(NN.Module):
         input = self.DropOut1_Main_3(input)
         
         #stream 3 starts here with an input of 4x4x128
-        input = self.Conv1_S3_1(input)
-        input = self.BatchNorm1_S3_1(input)
-        input = self.reluConv1_S3_1(input)
+        input4 = self.Conv1_S3_1(input)
+        input4 = self.BatchNorm1_S3_1(input4)
+        input4 = self.reluConv1_S3_1(input4)
         
-        input = self.Conv2_S3_1(input)
-        input = self.BatchNorm2_S3_1(input)
-        input = self.reluConv2_S3_1(input)
+        input4 = self.Conv2_S3_1(input4)
+        input4 = self.BatchNorm2_S3_1(input4)
+        input4 = self.reluConv2_S3_1(input4)
         
-        input = self.Conv1_S3_2(input)
-        input = self.BatchNorm1_S3_2(input)
-        input = self.reluConv1_S3_2(input)
+        input4 = self.Conv1_S3_2(input4)
+        input4 = self.BatchNorm1_S3_2(input4)
+        input4 = self.reluConv1_S3_2(input4)
         
-        input = self.Conv2_S3_2(input)
-        input = self.BatchNorm2_S3_2(input)
-        input = self.reluConv2_S3_2(input)
+        input4 = self.Conv2_S3_2(input4)
+        input4 = self.BatchNorm2_S3_2(input4)
+        input4 = self.reluConv2_S3_2(input4)
         
         #At this point the output will be 4x4x128 and this needs to be combined with the output of 
         #stream 1 + stream 2.
         #stream 3 + (stream 1 + stream 2 ) = 4x4x256
-        input = torch.cat((input,input3),dim=1) #fusion block 2
+        input5 = torch.cat((input4,input3),dim=1) #fusion block 2
+        input5 = self.fusion_Maxpool_3_12(input5)
+        #Output at this point is 2x2x256
         
-        #we will apply max pool to the above output and get 2x2x256
-        input = self.MaxPoolConv4(input)
-        input = self.DropOut4(input)
+        #Fourth block of the main to convert from 4x4x128 -> 2x2x256
+        input = self.Conv1_Main_4(input)
+        input = self.BatchNorm1_Main_4(input)
+        input = self.reluConv1_Main_4(input)
+        
+        input = self.Conv2_Main_4(input)
+        input = self.BatchNorm2_Main_4(input)
+        input = self.reluConv2_Main_4(input)
+        
+        input = self.MaxPoolConv1_Main_4(input)
+        input = self.DropOut1_Main_4(input)
+        
+        #stream 4 starts here with an input of 2x2x256
+        input = self.Conv1_S4_1(input)
+        input = self.BatchNorm1_S4_1(input)
+        input = self.reluConv1_S4_1(input)
+        
+        input = self.Conv2_S4_1(input)
+        input = self.BatchNorm2_S4_1(input)
+        input = self.reluConv2_S4_1(input)
+        
+        input = self.Conv1_S4_2(input)
+        input = self.BatchNorm1_S4_2(input)
+        input = self.reluConv1_S4_2(input)
+        
+        input = self.Conv2_S4_2(input)
+        input = self.BatchNorm2_S4_2(input)
+        input = self.reluConv2_S4_2(input)
+        
+        #Output at this point will be 2x2x256
+        #Now we need to combine this to get 2x2x512
+        input = torch.cat((input,input5),dim=1) #fusion block 3
         
         #FC Layers starts here
         input = input.view(input.size(0), -1)
@@ -354,6 +462,11 @@ class CIFARNet(NN.Module):
         input = self.DropOut6(input)
         
         input = self.FullyConn3(input)
+        input = self.BatchNorm11(input)
+        input = self.reluFC3(input)
+        input = self.DropOut7(input)
+        
+        input = self.FullyConn4(input)
         output = self.SoftMax(input)
         
         return output

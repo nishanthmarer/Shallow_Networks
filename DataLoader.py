@@ -24,17 +24,13 @@ CIFAR10_Image_Size = 32
 
 CIFAR_Classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
-Batch_Size = 128
 
 #Plotting Details
 Num_Row_Image = 6
 Num_Column_Image = 6
 Num_DataPlot_Row = 10
 Num_DataPlot_Col = 10
-Conv1LayerOutSizeCIFAR = 32
-Conv1OutputChannel = 32
 
-    
 """###################################################################################"""
 """This function checks if the GPU is available in the machine"""
 def DeviceCheck():
@@ -49,6 +45,7 @@ def DeviceCheck():
         device = TH.device("cpu")
         
     return device
+
     
 """###################################################################################"""
 """This function plots the images in the dataset in a 6x6 format"""
@@ -75,7 +72,7 @@ def ImagePlotter(TestingDataSet,DataSetType,ImageSaveLoc):
 """###################################################################################"""
 """This function is responsible for downloading the dataset as per the argument type 'DataSetType' and then further perform transformation
 as required for improving the accuracy of the model predicition"""
-def createDataset(DataLocFullPath, DataSetType, ImageSaveLoc):
+def createDataset(DataLocFullPath, DataSetType, Batch_Size, ImageSaveLoc):
 
     """Data Augmentation for the CIFAR dataset is done as a part of regularization techniques to increase the accuray of the model"""
     Transformation = TV.transforms.Compose([TV.transforms.Resize((CIFAR10_Image_Size,CIFAR10_Image_Size)),TV.transforms.ToTensor(), TV.transforms.Normalize((0.5),(0.5))])
@@ -100,12 +97,13 @@ def createDataset(DataLocFullPath, DataSetType, ImageSaveLoc):
     trainingDataLoader = TH.utils.data.DataLoader(trainDataSplit, batch_size = Batch_Size, shuffle = True)
     validationDataLoader = TH.utils.data.DataLoader(valDataSplit, batch_size = Batch_Size, shuffle = True)
     testingDataLoader = TH.utils.data.DataLoader(TestingDataSet, batch_size = 1, shuffle = True)
+    #testingDataLoader = TH.utils.data.DataLoader(TestingDataSet, batch_size = Batch_Size, shuffle = True)
     
     return trainingDataLoader,validationDataLoader,testingDataLoader
 
 """###################################################################################"""
 """This function is used for printing the output of the first Convolution layer in the NN"""
-def PrintIntermediateResult(ImageIntermediate, DataType, ImageSaveLoc):
+def PrintIntermediateResult(ImageIntermediate, Conv1OutputChannel,Conv1LayerOutSizeCIFAR, DataType, ImageSaveLoc):
     j = 0
     if DataType == "CIFAR10":
         img = ImageIntermediate.reshape(Conv1OutputChannel,Conv1LayerOutSizeCIFAR,Conv1LayerOutSizeCIFAR)
@@ -154,19 +152,16 @@ if __name__ =="__main__":
     #parser = argparse.ArgumentParser(description = 'Training on two dataset namely CIFAR10 using pytorch and CNN',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     #parser.add_argument('--cifar', help='CIFAR10 Dataset', action = 'store_true')
     #args = parser.parse_args()
-    
+    Batch_Size = 32
     DataSetType = "CIFAR10"
     DataStoreLoc = DataStoreLocCIFAR
-    
-    #Check Device availability
-    device = DeviceCheck()
-    
+        
     CodePath = os.path.dirname(__file__)
     DataLocFullPath = os.path.join(CodePath, DataStoreLoc)
     
     """Create the DataStore folder is not exist"""
     os.makedirs(DataLocFullPath, exist_ok=True)
     
-    trainingDataLoader,validationDataLoader,testingDataLoader = createDataset(DataLocFullPath,DataSetType, CodePath)
+    trainingDataLoader,validationDataLoader,testingDataLoader = createDataset(DataLocFullPath,DataSetType, Batch_Size, CodePath)
         
 """File Ends here"""

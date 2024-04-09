@@ -62,29 +62,21 @@ class CIFARNet(NN.Module):
         self.reluConv1_S1_1 = NN.ReLU()
         
         self.Conv2_S1_1 = NN.Conv2d(in_channels = Conv1OutputChannel, 
-                                out_channels = Conv1OutputChannel, 
-                                kernel_size = Conv2Filter_Size, 
-                                stride = Conv2Stride,
-                                padding = 1)
-        self.BatchNorm2_S1_1 = NN.BatchNorm2d(Conv1OutputChannel)
-        self.reluConv2_S1_1 = NN.ReLU()
-        
-        self.Conv1_S1_2 = NN.Conv2d(in_channels = Conv1OutputChannel, 
-                                out_channels = Conv1OutputChannel, 
-                                kernel_size = Conv2Filter_Size, 
-                                stride = Conv1Stride,
-                                padding = 1)
-        self.BatchNorm1_S1_2 = NN.BatchNorm2d(Conv1OutputChannel)
-        self.reluConv1_S1_2 = NN.ReLU()
-        
-        self.Conv2_S1_2 = NN.Conv2d(in_channels = Conv1OutputChannel, 
                                 out_channels = Conv2OutputChannel, 
                                 kernel_size = Conv2Filter_Size, 
                                 stride = Conv2Stride,
                                 padding = 1)
-        self.BatchNorm2_S1_2 = NN.BatchNorm2d(Conv2OutputChannel)
-        self.reluConv2_S1_2 = NN.ReLU()
+        self.BatchNorm2_S1_1 = NN.BatchNorm2d(Conv2OutputChannel)
         
+        self.ConvDownSample_S1_1 = NN.Conv2d(in_channels = Conv1OutputChannel, 
+                                        out_channels = Conv2OutputChannel, 
+                                        kernel_size = 1, 
+                                        stride = Conv2Stride,
+                                        padding = 0)
+        self.ConvDownSample_BatchNorm_S1_1 = NN.BatchNorm2d(Conv2OutputChannel)
+        
+        self.reluConv2_S1_1 = NN.ReLU()
+                
         self.MaxPoolConv1_S1 = NN.MaxPool2d((2,2), stride = 2)
         self.DropOut1_S1 = NN.Dropout2d(p=0.2)
         
@@ -105,6 +97,14 @@ class CIFARNet(NN.Module):
                                 stride = Conv2Stride,
                                 padding = 1)
         self.BatchNorm2_Main_2 = NN.BatchNorm2d(Conv2OutputChannel)
+        
+        self.ConvDownSample_Main_2 = NN.Conv2d(in_channels = Conv1OutputChannel, 
+                                        out_channels = Conv2OutputChannel, 
+                                        kernel_size = 1, 
+                                        stride = Conv2Stride,
+                                        padding = 0)
+        self.ConvDownSample_BatchNorm_Main_2  = NN.BatchNorm2d(Conv2OutputChannel)
+        
         self.reluConv2_Main_2 = NN.ReLU()
         
         self.MaxPoolConv1_Main_2 = NN.MaxPool2d((2,2), stride = 2)
@@ -126,24 +126,18 @@ class CIFARNet(NN.Module):
                                 stride = Conv2Stride,
                                 padding = 1)
         self.BatchNorm2_S2_1 = NN.BatchNorm2d(Conv2OutputChannel)
+        
+        # self.ConvDownSample_S2_1 = NN.Conv2d(in_channels = Conv2OutputChannel, 
+        #                                 out_channels = Conv2OutputChannel, 
+        #                                 kernel_size = 1, 
+        #                                 stride = Conv2Stride,
+        #                                 padding = 0)
+        # self.ConvDownSample_BatchNorm_S2_1 = NN.BatchNorm2d(Conv2OutputChannel)
+        
+        #No need of downsampling block since input is already perfect size
+        
         self.reluConv2_S2_1 = NN.ReLU()
-        
-        self.Conv1_S2_2 = NN.Conv2d(in_channels = Conv2OutputChannel, 
-                                out_channels = Conv2OutputChannel, 
-                                kernel_size = Conv2Filter_Size, 
-                                stride = Conv1Stride,
-                                padding = 1)
-        self.BatchNorm1_S2_2 = NN.BatchNorm2d(Conv2OutputChannel)
-        self.reluConv1_S2_2 = NN.ReLU()
-        
-        self.Conv2_S2_2 = NN.Conv2d(in_channels = Conv2OutputChannel, 
-                                out_channels = Conv2OutputChannel, 
-                                kernel_size = Conv2Filter_Size, 
-                                stride = Conv2Stride,
-                                padding = 1)
-        self.BatchNorm2_S2_2 = NN.BatchNorm2d(Conv2OutputChannel)
-        self.reluConv2_S2_2 = NN.ReLU()
-        
+                
         #Stream 1 + Stream2 = 8x8x64 + 8x8x64 = 8x8x128
         #self.fusion1 = torch.cat((x,x),2)
         self.fusion_Maxpool = NN.MaxPool2d((2,2), stride = 2)
@@ -165,6 +159,14 @@ class CIFARNet(NN.Module):
                                 stride = Conv2Stride,
                                 padding = 1)
         self.BatchNorm2_Main_3 = NN.BatchNorm2d(Conv3OutputChannel)
+        
+        self.ConvDownSample_Main_3 = NN.Conv2d(in_channels = Conv2OutputChannel, 
+                                        out_channels = Conv3OutputChannel, 
+                                        kernel_size = 1, 
+                                        stride = Conv2Stride,
+                                        padding = 0)
+        self.ConvDownSample_BatchNorm_Main_3  = NN.BatchNorm2d(Conv3OutputChannel)
+        
         self.reluConv2_Main_3 = NN.ReLU()
         
         self.MaxPoolConv1_Main_3 = NN.MaxPool2d((2,2), stride = 2)
@@ -186,23 +188,17 @@ class CIFARNet(NN.Module):
                                 stride = Conv2Stride,
                                 padding = 1)
         self.BatchNorm2_S3_1 = NN.BatchNorm2d(Conv3OutputChannel)
+        
+        # self.ConvDownSample_S2_1 = NN.Conv2d(in_channels = Conv2OutputChannel, 
+        #                                 out_channels = Conv2OutputChannel, 
+        #                                 kernel_size = 1, 
+        #                                 stride = Conv2Stride,
+        #                                 padding = 0)
+        # self.ConvDownSample_BatchNorm_S2_1 = NN.BatchNorm2d(Conv2OutputChannel)
+        
+        #No need of downsampling block since input is already perfect size
+        
         self.reluConv2_S3_1 = NN.ReLU()
-        
-        self.Conv1_S3_2 = NN.Conv2d(in_channels = Conv3OutputChannel, 
-                                out_channels = Conv3OutputChannel, 
-                                kernel_size = Conv2Filter_Size, 
-                                stride = Conv1Stride,
-                                padding = 1)
-        self.BatchNorm1_S3_2 = NN.BatchNorm2d(Conv3OutputChannel)
-        self.reluConv1_S3_2 = NN.ReLU()
-        
-        self.Conv2_S3_2 = NN.Conv2d(in_channels = Conv3OutputChannel, 
-                                out_channels = Conv3OutputChannel, 
-                                kernel_size = Conv2Filter_Size, 
-                                stride = Conv2Stride,
-                                padding = 1)
-        self.BatchNorm2_S3_2 = NN.BatchNorm2d(Conv3OutputChannel)
-        self.reluConv2_S3_2 = NN.ReLU()
         
         #Output at this point is 4x4x128 -> Stream 3
         #Combine this with stream 1 + stream 2 output i.e., 4x4x128 -> stream 3 + (stream 1 + stream 2) = 4x4x128 + 4x4x128 = 4x4x256
@@ -251,28 +247,27 @@ class CIFARNet(NN.Module):
         
         input1 = self.Conv2_S1_1(input1)
         input1 = self.BatchNorm2_S1_1(input1)
+        
+        identity1 = self.ConvDownSample_BatchNorm_S1_1(self.ConvDownSample_S1_1(input))
+        input1 += identity1
         input1 = self.reluConv2_S1_1(input1)
-        
-        input1 = self.Conv1_S1_2(input1)
-        input1 = self.BatchNorm1_S1_2(input1)
-        input1 = self.reluConv1_S1_2(input1)
-        
-        input1 = self.Conv2_S1_2(input1)
-        input1 = self.BatchNorm2_S1_2(input1)
-        input1 = self.reluConv2_S1_2(input1)
-        
+                
         input1 = self.MaxPoolConv1_S1(input1)
         input1 = self.DropOut1_S1(input1)
         
         #at this point Stream 1 output is 8x8x64
         
         #second block of the main to convert from 16x16x32 -> 8x8x64
+        identity2 = input.clone()
         input = self.Conv1_Main_2(input)
         input = self.BatchNorm1_Main_2(input)
         input = self.reluConv1_Main_2(input)
         
         input = self.Conv2_Main_2(input)
         input = self.BatchNorm2_Main_2(input)
+        
+        identity2 = self.ConvDownSample_BatchNorm_Main_2(self.ConvDownSample_Main_2(identity2))
+        input += identity2
         input = self.reluConv2_Main_2(input)
         
         input = self.MaxPoolConv1_Main_2(input)
@@ -285,15 +280,9 @@ class CIFARNet(NN.Module):
         
         input2 = self.Conv2_S2_1(input2)
         input2 = self.BatchNorm2_S2_1(input2)
+        input2 += input
+        
         input2 = self.reluConv2_S2_1(input2)
-        
-        input2 = self.Conv1_S2_2(input2)
-        input2 = self.BatchNorm1_S2_2(input2)
-        input2 = self.reluConv1_S2_2(input2)
-        
-        input2 = self.Conv2_S2_2(input2)
-        input2 = self.BatchNorm2_S2_2(input2)
-        input2 = self.reluConv2_S2_2(input2)
         
         #at this point the output of stream2 will be 8x8x64
         #here we need a fusion block to combine the input1 + input2 to make 8x8x128
@@ -303,34 +292,31 @@ class CIFARNet(NN.Module):
         #Also we need a maxpool so that we make it align with the steam 3 output of 4x4x128
         
         #Third block of the main to convert from 8x8x64 -> 4x4x128
+        identity3 = input.clone()
         input = self.Conv1_Main_3(input)
         input = self.BatchNorm1_Main_3(input)
         input = self.reluConv1_Main_3(input)
         
         input = self.Conv2_Main_3(input)
         input = self.BatchNorm2_Main_3(input)
+        identity3 = self.ConvDownSample_BatchNorm_Main_3(self.ConvDownSample_Main_3(identity3))
+        input += identity3
         input = self.reluConv2_Main_3(input)
         
         input = self.MaxPoolConv1_Main_3(input)
         input = self.DropOut1_Main_3(input)
         
         #stream 3 starts here with an input of 4x4x128
+        identity4 = input.clone()
         input = self.Conv1_S3_1(input)
         input = self.BatchNorm1_S3_1(input)
         input = self.reluConv1_S3_1(input)
         
         input = self.Conv2_S3_1(input)
         input = self.BatchNorm2_S3_1(input)
+        input += identity4
         input = self.reluConv2_S3_1(input)
-        
-        input = self.Conv1_S3_2(input)
-        input = self.BatchNorm1_S3_2(input)
-        input = self.reluConv1_S3_2(input)
-        
-        input = self.Conv2_S3_2(input)
-        input = self.BatchNorm2_S3_2(input)
-        input = self.reluConv2_S3_2(input)
-        
+                
         #At this point the output will be 4x4x128 and this needs to be combined with the output of 
         #stream 1 + stream 2.
         #stream 3 + (stream 1 + stream 2 ) = 4x4x256
