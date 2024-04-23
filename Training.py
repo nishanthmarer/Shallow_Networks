@@ -202,35 +202,35 @@ def ReSizeImage(Image,ImageTypeSize):
 
 """#######################################################################################"""
 """This function selects a given model by name and creates an instance and returns it"""
-def model_Selector(modelName):
+def model_Selector(modelName, Classes = 10):
     if modelName == "VGGNet":
-        cnn = VGGNet.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = VGGNet.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ResNet":
-        cnn = ResNet.ResNet9(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ResNet.ResNet9(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_3Streams_1Block":
-        cnn = ShallowModel_3Streams_1Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_3Streams_1Block.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_3Streams_1Block_Depth":
-        cnn = ShallowModel_3Streams_1Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_3Streams_1Block_Depth.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_3Streams_2Block":
-        cnn = ShallowModel_3Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)    
+        cnn = ShallowModel_3Streams_2Block.CIFARNet(numChannels = 3,classes = Classes).to(device)    
     elif modelName == "ShallowModel_4Streams_2Block":
-        cnn = ShallowModel_4Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_4Streams_2Block.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_ResNet_3Streams_1Block":
-        cnn = ShallowModel_ResNet_3Streams_1Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_ResNet_3Streams_1Block.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_ResNet_3Streams_1Block_Depth":
-        cnn = ShallowModel_ResNet_3Streams_1Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_ResNet_3Streams_1Block_Depth.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_ResNet_3Streams_2Block":
-        cnn = ShallowModel_ResNet_3Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_ResNet_3Streams_2Block.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_ResNet_3Streams_2Block_Depth":
-        cnn = ShallowModel_ResNet_3Streams_2Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_ResNet_3Streams_2Block_Depth.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection":
-        cnn = ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_ResNet_3Streams_3Block":
-        cnn = ShallowModel_ResNet_3Streams_3Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_ResNet_3Streams_3Block.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_ResNet_3Streams_3Block_Depth":
-        cnn = ShallowModel_ResNet_3Streams_3Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_ResNet_3Streams_3Block_Depth.CIFARNet(numChannels = 3,classes = Classes).to(device)
     elif modelName == "ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection":
-        cnn = ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+        cnn = ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection.CIFARNet(numChannels = 3,classes = Classes).to(device)
         
     return cnn
 
@@ -305,7 +305,7 @@ if __name__ =="__main__":
         print("##########################################################################")
         
         if DataSetType == "CIFAR10":
-            cnn = model_Selector(args.model)
+            cnn = model_Selector(args.model, len(trainingDataLoader.dataset.dataset.classes))
         
         if debug: print(cnn)
     
