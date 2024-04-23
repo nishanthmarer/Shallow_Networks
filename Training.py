@@ -250,6 +250,7 @@ if __name__ =="__main__":
                                                                   'ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection','ShallowModel_ResNet_3Streams_3Block',
                                                                   'ShallowModel_ResNet_3Streams_3Block_Depth','ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection'], default = 'ShallowModel_3Streams_1Block') 
     parser.add_argument('--dataLoader', help='Data Loader Type', choices=['Data1','Data2'], default='Data1')
+    parser.add_argument('--TestImage', help='Test image for model testing', default = None)
     args = parser.parse_args()
     TestImage = ""
     train = False
