@@ -300,6 +300,7 @@ if __name__ =="__main__":
         print("Learning Rate: ",Learning_Rate)
         print("Weight Deacy: ",Weight_Deacy)
         print("DataSet loader: ", args.dataLoader)
+        print("Schedular: ", args.scheduler)
         print("##########################################################################")
         
         if DataSetType == "CIFAR10":
