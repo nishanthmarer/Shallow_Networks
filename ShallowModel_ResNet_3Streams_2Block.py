@@ -20,6 +20,7 @@ Conv2OutputChannel = 64
 Conv3OutputChannel = 128
 Conv4OutputChannel = 256
 ValidationSize = 0.25
+DropOut = 0.1
 
 x = torch.zeros((8,8,64))
 
@@ -53,7 +54,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_Main = NN.ReLU()
         
         self.MaxPoolConv1_Main = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_Main = NN.Dropout2d(p=0.1)
+        self.DropOut1_Main = NN.Dropout2d(p=DropOut)
         
         #Output at this point is 16x16x32 -> Stream 1
         self.Conv1_S1_1 = NN.Conv2d(in_channels = Conv1OutputChannel, 
@@ -99,7 +100,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_S1_2 = NN.ReLU()
                 
         self.MaxPoolConv1_S1 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_S1 = NN.Dropout2d(p=0.1)
+        self.DropOut1_S1 = NN.Dropout2d(p=DropOut)
         
         #Output at this point is 8x8x64 -> Stream 1
         ###############################################################################################################################################
@@ -129,7 +130,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_Main_2 = NN.ReLU()
         
         self.MaxPoolConv1_Main_2 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_Main_2 = NN.Dropout2d(p=0.1)
+        self.DropOut1_Main_2 = NN.Dropout2d(p=DropOut)
         
         #Output at this point is 8x8x64
         #Start of Stream 2
@@ -211,7 +212,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_Main_3 = NN.ReLU()
         
         self.MaxPoolConv1_Main_3 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_Main_3 = NN.Dropout2d(p=0.1)
+        self.DropOut1_Main_3 = NN.Dropout2d(p=DropOut)
         
         #Output at this point is 4x4x128
         #Start of Stream 3
@@ -266,19 +267,19 @@ class CIFARNet(NN.Module):
         #second block combines stream 3 and output of fusion block 1.
         #this is then given to the max pool for making it 2x2x256
         self.MaxPoolConv4 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut4 = NN.Dropout2d(p=0.1)
+        self.DropOut4 = NN.Dropout2d(p=DropOut)
         
         ##########################################################################################
         #Output size at this point is 2x2x256
         self.FullyConn1 = NN.Linear(in_features = 1024, out_features=512)
         self.BatchNorm9 = NN.BatchNorm1d(512)
         self.reluFC1 = NN.ReLU()
-        self.DropOut5 = NN.Dropout1d(p=0.1)
+        self.DropOut5 = NN.Dropout1d(p=DropOut)
         
         self.FullyConn2 = NN.Linear(in_features = 512, out_features=256)
         self.BatchNorm10 = NN.BatchNorm1d(256)
         self.reluFC2 = NN.ReLU()
-        self.DropOut6 = NN.Dropout1d(p=0.1)
+        self.DropOut6 = NN.Dropout1d(p=DropOut)
         
         #Final Layer
         self.FullyConn3 = NN.Linear(in_features = 256, out_features = classes)

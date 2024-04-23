@@ -19,6 +19,7 @@ Conv1OutputChannel = 32
 Conv2OutputChannel = 64
 Conv3OutputChannel = 128
 Conv4OutputChannel = 256
+DropOut = 0.1
 
 ##################################################################################################
 """VGG Blocks, this model has four streams and each stream has 2 blocks in it"""
@@ -50,7 +51,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_Main = NN.ReLU()
         
         self.MaxPoolConv1_Main = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_Main = NN.Dropout2d(p=0.2)
+        self.DropOut1_Main = NN.Dropout2d(p=DropOut)
         
         ###########################################################################################################################
         #Stream 1 Blocks
@@ -88,7 +89,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_S1_2 = NN.ReLU()
         
         self.MaxPoolConv1_S1 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_S1 = NN.Dropout2d(p=0.2)
+        self.DropOut1_S1 = NN.Dropout2d(p=DropOut)
         
         #Output at this point is 8x8x64 -> Stream 1
         #Stream 1 ends
@@ -112,7 +113,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_Main_2 = NN.ReLU()
         
         self.MaxPoolConv1_Main_2 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_Main_2 = NN.Dropout2d(p=0.2)
+        self.DropOut1_Main_2 = NN.Dropout2d(p=DropOut)
         
         #Output at this point is 8x8x64
         ###############################################################################################################################################
@@ -178,7 +179,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_Main_3 = NN.ReLU()
         
         self.MaxPoolConv1_Main_3 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_Main_3 = NN.Dropout2d(p=0.2)
+        self.DropOut1_Main_3 = NN.Dropout2d(p=DropOut)
         
         #Output at this point is 4x4x128
         ###############################################################################################################################################
@@ -246,7 +247,7 @@ class CIFARNet(NN.Module):
         self.reluConv2_Main_4 = NN.ReLU()
         
         self.MaxPoolConv1_Main_4 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1_Main_4 = NN.Dropout2d(p=0.2)
+        self.DropOut1_Main_4 = NN.Dropout2d(p=DropOut)
         
         #Output at this point is 2x2x256
         ###############################################################################################################################################
@@ -293,17 +294,17 @@ class CIFARNet(NN.Module):
         self.FullyConn1 = NN.Linear(in_features = 2048, out_features=1024)
         self.BatchNorm9 = NN.BatchNorm1d(1024)
         self.reluFC1 = NN.ReLU()
-        self.DropOut5 = NN.Dropout1d(p=0.2)
+        self.DropOut5 = NN.Dropout1d(p=DropOut)
         
         self.FullyConn2 = NN.Linear(in_features = 1024, out_features=512)
         self.BatchNorm10 = NN.BatchNorm1d(512)
         self.reluFC2 = NN.ReLU()
-        self.DropOut6 = NN.Dropout1d(p=0.2)
+        self.DropOut6 = NN.Dropout1d(p=DropOut)
         
         self.FullyConn3 = NN.Linear(in_features = 512, out_features=256)
         self.BatchNorm11 = NN.BatchNorm1d(256)
         self.reluFC3 = NN.ReLU()
-        self.DropOut7 = NN.Dropout1d(p=0.2)
+        self.DropOut7 = NN.Dropout1d(p=DropOut)
         
         #Final Layer
         self.FullyConn4 = NN.Linear(in_features = 256, out_features = classes)
