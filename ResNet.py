@@ -6,7 +6,6 @@ Description: This file contains the model structure and returns the model create
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"""
 from DataLoader import DeviceCheck
 import torch.nn as NN
-import torch 
 from torchsummary import summary
 
 class SimpleResidualBlock(NN.Module):
@@ -21,7 +20,7 @@ class SimpleResidualBlock(NN.Module):
         out = self.conv1(x)
         out = self.relu1(out)
         out = self.conv2(out)
-        return self.relu2(out) + x # ReLU can be applied before or after adding the inpu
+        return self.relu2(out) + x # ReLU can be applied before or after adding the input
 
 
 def conv_block(in_channels, out_channels, pool=False):

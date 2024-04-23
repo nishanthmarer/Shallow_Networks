@@ -10,6 +10,8 @@ from torch.utils.data import random_split
 from DataLoader import createDataset,ImagePlotter
 from datetime import date
 
+import ResNet
+import VGGNet
 import ShallowModel_3Streams_1Block
 import ShallowModel_3Streams_1Block_Depth
 import ShallowModel_3Streams_2Block
@@ -180,64 +182,89 @@ def TestModel(cnn, testingDataLoader, device):
 
 """###################################################################################"""
 """This function takes the image given by the user and returns the prediction given by the model"""
-def TestModelSingleInput(cnn, Image, DataType, device, ImageSaveLoc):
+def TestModelSingleInput(cnn, Image, device):
     cnn.eval()
     with TH.no_grad():
         
         test_output, img = cnn(Image.to(device))
         pred_y = test_output.argmax(dim=1)
 
-        if DataType == "CIFAR10":
-            print("The Predicited Output is", CIFAR_Classes[pred_y.to("cpu").numpy()[0]])
+        print("The Predicited Output is", CIFAR_Classes[pred_y.to("cpu").numpy()[0]])
     
     
 """###################################################################################"""
-"""This function takes the input image and re-sizes it according to the MNIST or CIFAR10 dataset size"""
+"""This function takes the input image and re-sizes it according to the CIFAR10 dataset size"""
 def ReSizeImage(Image,ImageTypeSize):
     if Image.shape[0] > ImageTypeSize and Image.shape[1] > ImageTypeSize:
         Image = cv2.resize(Image, (ImageTypeSize,ImageTypeSize))
     return Image
+
+"""#######################################################################################"""
+"""This function selects a given model by name and creates an instance and returns it"""
+def model_Selector(modelName):
+    if modelName == "VGGNet":
+        cnn = VGGNet.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ResNet":
+        cnn = ResNet.ResNet9(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_3Streams_1Block":
+        cnn = ShallowModel_3Streams_1Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_3Streams_1Block_Depth":
+        cnn = ShallowModel_3Streams_1Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_3Streams_2Block":
+        cnn = ShallowModel_3Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)    
+    elif modelName == "ShallowModel_4Streams_2Block":
+        cnn = ShallowModel_4Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_ResNet_3Streams_1Block":
+        cnn = ShallowModel_ResNet_3Streams_1Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_ResNet_3Streams_1Block_Depth":
+        cnn = ShallowModel_ResNet_3Streams_1Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_ResNet_3Streams_2Block":
+        cnn = ShallowModel_ResNet_3Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_ResNet_3Streams_2Block_Depth":
+        cnn = ShallowModel_ResNet_3Streams_2Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection":
+        cnn = ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_ResNet_3Streams_3Block":
+        cnn = ShallowModel_ResNet_3Streams_3Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_ResNet_3Streams_3Block_Depth":
+        cnn = ShallowModel_ResNet_3Streams_3Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+    elif modelName == "ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection":
+        cnn = ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
         
+    return cnn
+
 """###################################################################################"""
 """The main function starts here which takes the input from the user and decides to perform training or testing of the model"""  
 if __name__ =="__main__":
     
-    # parser = argparse.ArgumentParser(description = 'Training on two datasets namely MNIST and CIFAR10 using pytorch and CNN',formatter_class=argparse.ArgumentDefaultsHelpFormatter)    
-    # parser.add_argument('mode', help='Train or Test the model', choices=['train','test']) 
-    # parser.add_argument('--mnist', help='MNIST Dataset', action = 'store_true')
-    # parser.add_argument('--cifar', help='CIFAR10 Dataset', action = 'store_true')
-    # parser.add_argument('input', nargs='?', help='Enter the image location for testing the model', default = None)
-    # args = parser.parse_args()
     parser = argparse.ArgumentParser(description = 'Training on CIFAR10 using pytorch and CNN',formatter_class=argparse.ArgumentDefaultsHelpFormatter)    
-    parser.add_argument('--model', help='Select Models', choices=['ShallowModel_3Streams_1Block','ShallowModel_3Streams_1Block_Depth',
+    parser.add_argument('--mode', help='Train or Test the model', choices=['train','test']) 
+    parser.add_argument('modelPath',help='file location of model to be tested', type=str, default = None)
+    parser.add_argument('--scheduler', help='Select a scheduler',choices=['OneCycleLR','CyclicLR'], default='OneCycleLR')
+    parser.add_argument('--model', help='Select Models', choices=['ResNet','VGGNet',
+                                                                  'ShallowModel_3Streams_1Block','ShallowModel_3Streams_1Block_Depth',
                                                                   'ShallowModel_3Streams_2Block','ShallowModel_4Streams_2Block',
                                                                   'ShallowModel_ResNet_3Streams_1Block','ShallowModel_ResNet_3Streams_1Block_Depth',
                                                                   'ShallowModel_ResNet_3Streams_2Block','ShallowModel_ResNet_3Streams_2Block_Depth',
                                                                   'ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection','ShallowModel_ResNet_3Streams_3Block',
-                                                                  'ShallowModel_ResNet_3Streams_3Block_Depth','ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection']) 
+                                                                  'ShallowModel_ResNet_3Streams_3Block_Depth','ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection'], default = 'ShallowModel_3Streams_1Block') 
     args = parser.parse_args()
     TestImage = ""
     train = False
     test = False
-    #if args.mode == "train":
-    if "train" == "train":   
-        #if args.cifar:
-        if True:
-            DataSetType = "CIFAR10"
-            DataStoreLoc = DataStoreLocCIFAR
-            train = True
+    if args.mode == "train":    
+        DataSetType = "CIFAR10"
+        DataStoreLoc = DataStoreLocCIFAR
+        train = True
+    elif args.mode == "test":
+        TestImage = args.input
+        DataSetType = "CIFAR10"
+        if os.path.isfile(TestImage):
+            if debug: print('Image File exists')
+            test = True
         else:
-            print('Wrong input Exiting!!')
+            print('Image File does not exist')
             exit(0)
-    
-    # elif args.mode == "test":
-    #     TestImage = args.input
-    #     if os.path.isfile(TestImage):
-    #         if debug: print('Image File exists')
-    #         test = True
-    #     else:
-    #         print('Image File does not exist')
-    #         exit(0)
     else:
         print('The input is not right choice.. Exiting!')
         exit(0)
@@ -260,30 +287,7 @@ if __name__ =="__main__":
         
         print("The model being trained and tested here is: ",args.model)
         if DataSetType == "CIFAR10":
-            if args.model == "ShallowModel_3Streams_1Block":
-                cnn = ShallowModel_3Streams_1Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_3Streams_1Block_Depth":
-                cnn = ShallowModel_3Streams_1Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_3Streams_2Block":
-                cnn = ShallowModel_3Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)    
-            elif args.model == "ShallowModel_4Streams_2Block":
-                cnn = ShallowModel_4Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_ResNet_3Streams_1Block":
-                cnn = ShallowModel_ResNet_3Streams_1Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_ResNet_3Streams_1Block_Depth":
-                cnn = ShallowModel_ResNet_3Streams_1Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_ResNet_3Streams_2Block":
-                cnn = ShallowModel_ResNet_3Streams_2Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_ResNet_3Streams_2Block_Depth":
-                cnn = ShallowModel_ResNet_3Streams_2Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection":
-                cnn = ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_ResNet_3Streams_3Block":
-                cnn = ShallowModel_ResNet_3Streams_3Block.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_ResNet_3Streams_3Block_Depth":
-                cnn = ShallowModel_ResNet_3Streams_3Block_Depth.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
-            elif args.model == "ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection":
-                cnn = ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection.CIFARNet(numChannels = 3,classes = len(trainingDataLoader.dataset.dataset.classes)).to(device)
+            cnn = model_Selector(args.model)
         
         if debug: print(cnn)
     
@@ -292,8 +296,13 @@ if __name__ =="__main__":
         the accuray of the model predicition"""
         #Optimizer = TH.optim.Adam(cnn.parameters(),lr = Learning_Rate, weight_decay=Weight_Deacy)
         Optimizer = TH.optim.SGD(cnn.parameters(),lr = Learning_Rate, weight_decay=Weight_Deacy)
-        scheduler = TH.optim.lr_scheduler.OneCycleLR(Optimizer, Learning_Rate, epochs=Epoch, 
-                                                steps_per_epoch=len(trainingDataLoader))
+        if args.scheduler == "OneCycleLR":
+            scheduler = TH.optim.lr_scheduler.OneCycleLR(Optimizer, Learning_Rate, epochs=Epoch, 
+                                                     steps_per_epoch=len(trainingDataLoader))
+        elif args.scheduler == "CyclicLR":
+            scheduler = TH.optim.lr_scheduler.CyclicLR(Optimizer, base_lr = (Learning_Rate/10.0), max_lr = Learning_Rate, step_size_up = len(trainingDataLoader)//2, 
+                                                       mode = "triangular")
+            
         LossFunction = NN.CrossEntropyLoss()
         
         """Create the model folder is not exist"""
@@ -308,20 +317,24 @@ if __name__ =="__main__":
         TestModel(cnn,testingDataLoader, device)
     
     elif test:
-        print("Yet to Implement")
-        # img = cv2.imread(TestImage)
-        # CodePath = os.path.dirname(__file__)
-        # Converter = TV.transforms.Compose([TV.transforms.ToPILImage(),TV.transforms.ToTensor()])
+        print("Testing the model for a single image")
+        img = cv2.imread(TestImage)
+        CodePath = os.path.dirname(__file__)
+        Converter = TV.transforms.Compose([TV.transforms.ToPILImage(),TV.transforms.ToTensor()])
         
-        # DataType = "CIFAR10"
-        # img = ReSizeImage(img,CIFAR10_Image_Size)
-        # ModelPath = os.path.join(CodePath, ModelLocCIFAR)
-        # cnn = CIFARNet(numChannels = 3,classes = 10).to(device)
-        # cnn.load_state_dict(TH.load(ModelPath))
-        
-        # colorimg = Converter(img)
-        # ImageFinal = colorimg.reshape(1,3,CIFAR10_Image_Size,CIFAR10_Image_Size)
+        if DataSetType == "CIFAR10":
+            cnn = model_Selector(args.model)
             
-        # TestModelSingleInput(cnn, ImageFinal, DataType, device, CodePath)
+        img = ReSizeImage(img,CIFAR10_Image_Size)
+        ModelPath = args.modelPath
+        if ModelPath is not None and os.path.exists(ModelPath):
+            cnn.load_state_dict(TH.load(ModelPath))
+        else:
+            print("Model file does not exists")
+                
+        colorimg = Converter(img)
+        ImageFinal = colorimg.reshape(1,3,CIFAR10_Image_Size,CIFAR10_Image_Size)
+            
+        TestModelSingleInput(cnn, ImageFinal, device)
 
 """File Ends here"""
