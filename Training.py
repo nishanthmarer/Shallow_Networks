@@ -187,7 +187,7 @@ def TestModelSingleInput(cnn, Image, device):
     cnn.eval()
     with TH.no_grad():
         
-        test_output, img = cnn(Image.to(device))
+        test_output = cnn(Image.to(device))
         pred_y = test_output.argmax(dim=1)
 
         print("The Predicited Output is", CIFAR_Classes[pred_y.to("cpu").numpy()[0]])
