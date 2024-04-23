@@ -260,7 +260,7 @@ if __name__ =="__main__":
         DataStoreLoc = DataStoreLocCIFAR
         train = True
     elif args.mode == "test":
-        TestImage = args.input
+        TestImage = args.TestImage
         DataSetType = "CIFAR10"
         if os.path.isfile(TestImage):
             if debug: print('Image File exists')
