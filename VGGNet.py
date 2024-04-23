@@ -20,7 +20,7 @@ Conv2OutputChannel = 64
 Conv3OutputChannel = 128
 Conv4OutputChannel = 256
 ValidationSize = 0.25
-
+dropout = 0.1
 x = torch.zeros((8,8,64))
 
 class CIFARNet(NN.Module):
@@ -46,7 +46,7 @@ class CIFARNet(NN.Module):
         self.reluConv2 = NN.ReLU()
         
         self.MaxPoolConv1 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut1 = NN.Dropout2d(p=0.2)
+        self.DropOut1 = NN.Dropout2d(p=dropout)
         ##########################################################################################
         #Output size at this point is 16x16x32
         #Here the filter sizes is changed from 5 to 3 for better extraction of the features in the image
@@ -67,7 +67,7 @@ class CIFARNet(NN.Module):
         self.reluConv4 = NN.ReLU()
         
         self.MaxPoolConv2 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut2 = NN.Dropout2d(p=0.2)
+        self.DropOut2 = NN.Dropout2d(p=dropout)
         ########################################################################################## 
         #Output size at this point is 8x8x64
         self.Conv5 = NN.Conv2d(in_channels = Conv2OutputChannel, 
@@ -87,7 +87,7 @@ class CIFARNet(NN.Module):
         self.reluConv6 = NN.ReLU()
         
         self.MaxPoolConv3 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut3 = NN.Dropout2d(p=0.2)
+        self.DropOut3 = NN.Dropout2d(p=dropout)
         ##########################################################################################
         #Output size at this point is 4x4x128
         
@@ -108,19 +108,19 @@ class CIFARNet(NN.Module):
         self.reluConv8 = NN.ReLU()
         
         self.MaxPoolConv4 = NN.MaxPool2d((2,2), stride = 2)
-        self.DropOut4 = NN.Dropout2d(p=0.2)
+        self.DropOut4 = NN.Dropout2d(p=dropout)
         
         ##########################################################################################
         #Output size at this point is 2x2x256
         self.FullyConn1 = NN.Linear(in_features = 1024, out_features=512)
         self.BatchNorm9 = NN.BatchNorm1d(512)
         self.reluFC1 = NN.ReLU()
-        self.DropOut5 = NN.Dropout1d(p=0.2)
+        self.DropOut5 = NN.Dropout1d(p=dropout)
         
         self.FullyConn2 = NN.Linear(in_features = 512, out_features=256)
         self.BatchNorm10 = NN.BatchNorm1d(256)
         self.reluFC2 = NN.ReLU()
-        self.DropOut6 = NN.Dropout1d(p=0.2)
+        self.DropOut6 = NN.Dropout1d(p=dropout)
         
         #Final Layer
         self.FullyConn3 = NN.Linear(in_features = 256, out_features = classes)
