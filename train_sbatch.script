@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:k80:1
+#SBATCH --gres=gpu:p100:1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=08:00:00
 #SBATCH --job-name=ShallowNetworks
@@ -24,4 +24,4 @@ export PYTHONFAULTHANDLER=1
 
 # export PL_FAULT_TOLERANT_TRAINING=1
 
-srun --unbuffered --export=ALL python3 Training.py
+srun --unbuffered --export=ALL python3 Training.py "$@"
