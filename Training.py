@@ -10,6 +10,7 @@ from torch.utils.data import random_split
 from DataLoader import createDataset,ImagePlotter
 from datetime import date
 
+import DataLoader_2
 import ResNet
 import VGGNet
 import ShallowModel_3Streams_1Block
@@ -28,10 +29,10 @@ import ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection
 
 """Set the debug = 1 to print messages in the code else set to 0 to stop printing output"""
 debug = 1
-Batch_Size = 256
-Epoch = 10
-Learning_Rate = 1e-3
-Weight_Deacy = 1e-5
+Batch_Size = 128
+Epoch = 200
+Learning_Rate = 1e-2
+Weight_Deacy = 1e-4
 Patience = 8
 DataStoreLocCIFAR = "DataStore/CIFAR10"
 CIFAR10_Image_Size = 32
@@ -173,7 +174,7 @@ def TestModel(cnn, testingDataLoader, device):
     with TH.no_grad():
         correct = 0
         for images, labels in testingDataLoader:
-            test_output = cnn(images.to(device))[0]
+            test_output = cnn(images.to(device))
             pred_y = test_output.argmax(dim=1)
             correct += (pred_y == labels.to(device)).type(TH.float).sum().item()
         accuracy = (correct/len(testingDataLoader.dataset))*100.0
@@ -239,7 +240,7 @@ if __name__ =="__main__":
     
     parser = argparse.ArgumentParser(description = 'Training on CIFAR10 using pytorch and CNN',formatter_class=argparse.ArgumentDefaultsHelpFormatter)    
     parser.add_argument('--mode', help='Train or Test the model', choices=['train','test']) 
-    parser.add_argument('modelPath',help='file location of model to be tested', type=str, default = None)
+    parser.add_argument('--modelPath',help='file location of model to be tested', type=str, default = None)
     parser.add_argument('--scheduler', help='Select a scheduler',choices=['OneCycleLR','CyclicLR'], default='OneCycleLR')
     parser.add_argument('--model', help='Select Models', choices=['ResNet','VGGNet',
                                                                   'ShallowModel_3Streams_1Block','ShallowModel_3Streams_1Block_Depth',
@@ -248,6 +249,7 @@ if __name__ =="__main__":
                                                                   'ShallowModel_ResNet_3Streams_2Block','ShallowModel_ResNet_3Streams_2Block_Depth',
                                                                   'ShallowModel_ResNet_3Streams_2Block_Depth_Skip_Connection','ShallowModel_ResNet_3Streams_3Block',
                                                                   'ShallowModel_ResNet_3Streams_3Block_Depth','ShallowModel_ResNet_3Streams_3Block_Depth_Skip_Connection'], default = 'ShallowModel_3Streams_1Block') 
+	parser.add_argument('--dataLoader', help='Data Loader Type', choices=['Data1','Data2'], default='Data1')
     args = parser.parse_args()
     TestImage = ""
     train = False
@@ -279,13 +281,27 @@ if __name__ =="__main__":
         """Create the DataStore folder is not exist"""
         os.makedirs(DataLocFullPath, exist_ok=True)
         
-        trainingDataLoader,validationDataLoader,testingDataLoader = createDataset(DataLocFullPath,DataSetType, Batch_Size, CodePath)
-        
+        if args.dataLoader == "Data1":
+            trainingDataLoader,validationDataLoader,testingDataLoader = createDataset(DataLocFullPath,DataSetType, Batch_Size, CodePath)
+        elif args.dataLoader == "Data2":
+            trainingDataLoader,validationDataLoader,testingDataLoader = DataLoader_2.createDataset(DataLocFullPath,DataSetType, Batch_Size, CodePath)
+        else:
+            print("wrong input")
+            exit(0)
+            
         trainingDataLoader = DeviceDataLoader(trainingDataLoader, device)
         validationDataLoader = DeviceDataLoader(validationDataLoader, device)
         testingDataLoader = DeviceDataLoader(testingDataLoader, device)
         
-        print("The model being trained and tested here is: ",args.model)
+        print("##########################################################################")
+        print("Model Name: ",args.model)
+        print("Batch Size: ",Batch_Size)
+        print("Epoch: ",Epoch)
+        print("Learning Rate: ",Learning_Rate)
+        print("Weight Deacy: ",Weight_Deacy)
+        print("DataSet loader: ", args.dataLoader)
+        print("##########################################################################")
+        
         if DataSetType == "CIFAR10":
             cnn = model_Selector(args.model)
         
