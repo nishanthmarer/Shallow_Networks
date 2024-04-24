@@ -37,6 +37,7 @@ Patience = 8
 DataStoreLocCIFAR = "DataStore/CIFAR10"
 CIFAR10_Image_Size = 32
 ModelLocCIFAR = "model/CIFAR10.pth" 
+stats = ((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
 CIFAR_Classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
 def to_device(data, device):
@@ -338,12 +339,10 @@ if __name__ =="__main__":
         print("Testing the model for a single image")
         img = cv2.imread(TestImage)
         CodePath = os.path.dirname(__file__)
-        Converter = TV.transforms.Compose([TV.transforms.ToPILImage(),TV.transforms.ToTensor()])
-        
+        Converter = TV.transforms.Compose([TV.transforms.ToPILImage(), TV.transforms.Resize((CIFAR10_Image_Size,CIFAR10_Image_Size)),TV.transforms.ToTensor(), TV.transforms.Normalize(*stats)])
         if DataSetType == "CIFAR10":
             cnn = model_Selector(args.model)
             
-        img = ReSizeImage(img,CIFAR10_Image_Size)
         ModelPath = args.modelPath
         if ModelPath is not None and os.path.exists(ModelPath):
             cnn.load_state_dict(TH.load(ModelPath))
