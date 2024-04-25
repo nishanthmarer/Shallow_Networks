@@ -12,6 +12,13 @@ Ensure your environment is set up according to these specifications to avoid any
 
 These dependencies can be installed using `pip` or `conda`, based on your preference and existing setup.
 
+The code also requires certain folders to be present, where it saves the model and stores the dataset.
+
+- **DataStore/CIFAR10**: This folder will contain the location of the dataset
+- **model**: This folder will contain all the trained models
+
+Creation of these folders are vital for functioning of the scripts.
+
 ## Training Commands
 
 You can initiate the training process using either SLURM or directly through a Python script on a local machine.
@@ -21,6 +28,8 @@ You can initiate the training process using either SLURM or directly through a P
 To submit a training job to a SLURM managed cluster, use the following command:
 
 ```sbatch train_sbatch.script --mode train --scheduler OneCycleLR --model ShallowModel_3Streams_1Block --dataLoader Data2```
+
+The above command will train the "ShallowModel_3Streams_1Block" model, replace its name with any other model in the file list.
 
 ### Python Training Command
 
